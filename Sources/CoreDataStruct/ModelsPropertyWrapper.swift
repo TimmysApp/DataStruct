@@ -9,62 +9,62 @@ import Foundation
 import SwiftUI
 import Combine
 
+@available(macOS 11.0, *)
 @propertyWrapper public struct FetchedModels<Value: Datable>: DynamicProperty {
-    private var defaultValue: [Value]
-    private let publisher = Value.modelData
-    private let predicate: NSPredicate?
-    private let sortDescriptors: [NSSortDescriptor]?
+    @StateObject var modelData: DatableFecthedValues<Value>
     public init(defaultValue: [Value] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil) {
-        self.defaultValue = []
-        self.predicate = predicate
-        self.sortDescriptors = sortDescriptors
+        self._modelData = StateObject(wrappedValue: DatableFecthedValues(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
     }
     public var wrappedValue: [Value] {
         get {
-            defaultValue
+            modelData.models
         }
         nonmutating set {
         }
-    }
-    public var projectedValue: AnyPublisher<[Value], Never> {
-        publisher
-            .with(predicate: predicate, sortDescriptors: sortDescriptors)
-            .publisher()
     }
 }
 
-
+@available(macOS 11.0, *)
 @propertyWrapper public struct SectionedModels<Value: Datable>: DynamicProperty {
-    private var defaultValue: [[Value]]
-    private let publisher = Value.modelData
-    private let predicate: NSPredicate?
-    private let sortDescriptors: [NSSortDescriptor]?
-    private let condition: (([Value], Value) -> Bool)
-    public init(wrappedValue value: [[Value]] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, sections: @escaping ([Value], Value) -> Bool) {
-        self.defaultValue = value
-        self.predicate = predicate
-        self.sortDescriptors = sortDescriptors
-        self.condition = sections
+    @StateObject var modelData: DatableFecthedValues<Value>
+    public init(defaultValue: [[Value]] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, sections: @escaping ([Value], Value) -> Bool) {
+        self._modelData = StateObject(wrappedValue: DatableFecthedValues(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sections: sections))
     }
     public var wrappedValue: [[Value]] {
         get {
-            defaultValue
+            modelData.sections
         }
         nonmutating set {
         }
     }
-    public var projectedValue: AnyPublisher<[[Value]], Never> {
-        publisher
+}
+
+@available(macOS 11.0, *)
+@MainActor class DatableFecthedValues<Value: Datable>: ObservableObject {
+    @Published var sections = [[Value]]()
+    @Published var models = [Value]()
+    public init(value: [[Value]], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], sections: @escaping ([Value], Value) -> Bool) {
+        self.sections = value
+        Value.modelData
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
             .publisher()
+            .receive(on: RunLoop.main)
             .map { datable in
                 return datable.reduce(into: [[Value]]()) { partialResult, element in
-                    if let index = partialResult.firstIndex(where: {condition($0, element)}) {
+                    if let index = partialResult.firstIndex(where: {sections($0, element)}) {
                         partialResult[index].append(element)
                     }else {
                         partialResult.append([element])
                     }
                 }
-            }.eraseToAnyPublisher()
+            }.assign(to: &$sections)
+    }
+    public init(value: [Value], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) {
+        self.models = value
+        Value.modelData
+            .with(predicate: predicate, sortDescriptors: sortDescriptors)
+            .publisher()
+            .receive(on: RunLoop.main)
+            .assign(to: &$models)
     }
 }
