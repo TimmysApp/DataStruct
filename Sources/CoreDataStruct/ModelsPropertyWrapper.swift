@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-@available(macOS 11.0, *)
+@available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct FetchedModels<Value: Datable>: DynamicProperty {
     @StateObject var modelData: DatableFecthedValues<Value>
     public init(defaultValue: [Value] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil) {
@@ -24,7 +24,7 @@ import Combine
     }
 }
 
-@available(macOS 11.0, *)
+@available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct SectionedModels<Value: Datable>: DynamicProperty {
     @StateObject var modelData: DatableFecthedValues<Value>
     public init(defaultValue: [[Value]] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, sections: @escaping ([Value], Value) -> Bool) {
@@ -39,7 +39,7 @@ import Combine
     }
 }
 
-@available(macOS 11.0, *)
+@available(iOS 14.0, macOS 11.0, *)
 @MainActor class DatableFecthedValues<Value: Datable>: ObservableObject {
     @Published var sections = [[Value]]()
     @Published var models = [Value]()
