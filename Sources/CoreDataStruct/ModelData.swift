@@ -41,7 +41,7 @@ public final class ModelData<T: Datable>: NSObject, ObservableObject, NSFetchedR
     }
     public func publisher() -> AnyPublisher<[T], Never> {
         return publishedData
-            .mapError { error in
+            .mapError { error -> Error in
                 DataConfigurations.shared.errorsPublisher.send(error)
                 return error
             }.replaceError(with: [])
