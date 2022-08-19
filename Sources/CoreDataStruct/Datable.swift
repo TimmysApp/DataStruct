@@ -8,10 +8,12 @@
 import Foundation
 import CoreData
 
-public protocol Datable: Identifiable {
+public protocol Datable: Identifiable, Iterable {
     associatedtype Object: NSManagedObject
     var oid: UUID? {get set}
     var id: UUID? {get set}
+    static var dataKeys: [String: String] {get}
+    static var empty: Self {get}
 //MARK: - Mapping
     static func map(from object: Object?) -> Self?
     func getObject(from object: Object, isUpdating: Bool) -> Object
@@ -20,6 +22,11 @@ public protocol Datable: Identifiable {
 }
 
 public extension Datable {
+    var dataKeys: [String: String] {
+        get {
+            return [:]
+        }
+    }
 //MARK: - Mapping
     var id: UUID? {
         get {
@@ -118,7 +125,7 @@ public extension Datable {
     }
 }
 
-public extension Array {
+public extension Array where Element: NSManagedObject {
     func model<T: Datable>() -> [T] {
         return self.compactMap({T.map(from: $0 as? T.Object)})
     }

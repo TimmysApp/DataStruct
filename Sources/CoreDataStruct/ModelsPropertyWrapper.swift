@@ -43,7 +43,7 @@ import Combine
 @MainActor class DatableFecthedValues<Value: Datable>: ObservableObject {
     @Published var sections = [[Value]]()
     @Published var models = [Value]()
-    public init(value: [[Value]], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], sections: @escaping ([Value], Value) -> Bool) {
+    init(value: [[Value]], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], sections: @escaping ([Value], Value) -> Bool) {
         self.sections = value
         Value.modelData
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
@@ -59,7 +59,7 @@ import Combine
                 }
             }.assign(to: &$sections)
     }
-    public init(value: [Value], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) {
+    init(value: [Value], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) {
         self.models = value
         Value.modelData
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
