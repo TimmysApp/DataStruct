@@ -11,13 +11,13 @@ import Combine
 
 @available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct FetchedModels<Value: Datable>: DynamicProperty {
-    @StateObject var modelData: DatableFecthedValues<Value>
+    @StateObject private var modelData: ModelConfigurations<Value>
     public init(defaultValue: [Value] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil) {
-        self._modelData = StateObject(wrappedValue: DatableFecthedValues(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
+        self._modelData = StateObject(wrappedValue: ModelConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
     }
-    public var wrappedValue: [Value] {
+    public var wrappedValue: ModelConfigurations<Value> {
         get {
-            modelData.models
+            modelData
         }
         nonmutating set {
         }
@@ -26,45 +26,15 @@ import Combine
 
 @available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct SectionedModels<Value: Datable>: DynamicProperty {
-    @StateObject var modelData: DatableFecthedValues<Value>
+    @StateObject private var modelData: SectionConfigurations<Value>
     public init(defaultValue: [[Value]] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, sections: @escaping ([Value], Value) -> Bool) {
-        self._modelData = StateObject(wrappedValue: DatableFecthedValues(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sections: sections))
+        self._modelData = StateObject(wrappedValue: SectionConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sectionsRules: sections))
     }
-    public var wrappedValue: [[Value]] {
+    public var wrappedValue: SectionConfigurations<Value> {
         get {
-            modelData.sections
+            modelData
         }
         nonmutating set {
         }
-    }
-}
-
-@available(iOS 14.0, macOS 11.0, *)
-@MainActor class DatableFecthedValues<Value: Datable>: ObservableObject {
-    @Published var sections = [[Value]]()
-    @Published var models = [Value]()
-    init(value: [[Value]], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], sections: @escaping ([Value], Value) -> Bool) {
-        self.sections = value
-        Value.modelData
-            .with(predicate: predicate, sortDescriptors: sortDescriptors)
-            .publisher()
-            .receive(on: RunLoop.main)
-            .map { datable in
-                return datable.reduce(into: [[Value]]()) { partialResult, element in
-                    if let index = partialResult.firstIndex(where: {sections($0, element)}) {
-                        partialResult[index].append(element)
-                    }else {
-                        partialResult.append([element])
-                    }
-                }
-            }.assign(to: &$sections)
-    }
-    init(value: [Value], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) {
-        self.models = value
-        Value.modelData
-            .with(predicate: predicate, sortDescriptors: sortDescriptors)
-            .publisher()
-            .receive(on: RunLoop.main)
-            .assign(to: &$models)
     }
 }
