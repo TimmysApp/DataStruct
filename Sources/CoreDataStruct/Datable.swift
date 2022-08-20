@@ -13,7 +13,7 @@ public protocol Datable: Identifiable, Iterable {
     var oid: UUID? {get set}
     var id: UUID? {get set}
     static var dataKeys: [String: String] {get}
-    static var empty: Self {get}
+//    static var empty: Self {get}
 //MARK: - Mapping
     static func map(from object: Object?) -> Self?
     func getObject(from object: Object, isUpdating: Bool) -> Object
