@@ -12,7 +12,7 @@ public protocol Datable: Identifiable, Iterable {
     associatedtype Object: NSManagedObject
     var oid: UUID? {get set}
     var id: UUID? {get set}
-    static var dataKeys: [String: String] {get}
+    var dataKeys: [String: String] {get}
 //    static var empty: Self {get}
 //MARK: - Mapping
     static func map(from object: Object?) -> Self?
