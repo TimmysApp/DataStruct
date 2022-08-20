@@ -15,7 +15,7 @@ public final class ModelData<T: Datable>: NSObject, ObservableObject, NSFetchedR
     public init(predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) {
         let fetchRequest = T.Object.fetchRequest() as! NSFetchRequest<T.Object>
         fetchRequest.predicate = predicate
-        fetchRequest.sortDescriptors = sortDescriptors
+        fetchRequest.sortDescriptors = sortDescriptors ?? []
         guard let viewContext = DataConfigurations.shared.managedObjectContext else {
             fatalError("You should set the ViewContext of the Configurations using Configurations.setObjectContext")
         }
