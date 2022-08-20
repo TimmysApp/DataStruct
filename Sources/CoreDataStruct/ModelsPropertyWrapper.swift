@@ -15,9 +15,9 @@ import Combine
     public init(defaultValue: [Value] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil) {
         self._modelData = StateObject(wrappedValue: ModelConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
     }
-    public var wrappedValue: ModelConfigurations<Value> {
+    public var wrappedValue: StateObject<ModelConfigurations<Value>> {
         get {
-            modelData
+            _modelData
         }
         nonmutating set {
         }
@@ -30,9 +30,9 @@ import Combine
     public init(defaultValue: [[Value]] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, sections: @escaping ([Value], Value) -> Bool) {
         self._modelData = StateObject(wrappedValue: SectionConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sectionsRules: sections))
     }
-    public var wrappedValue: SectionConfigurations<Value> {
+    public var wrappedValue: StateObject<SectionConfigurations<Value>> {
         get {
-            modelData
+            _modelData
         }
         nonmutating set {
         }
