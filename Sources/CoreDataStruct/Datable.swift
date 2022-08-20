@@ -125,7 +125,7 @@ public extension Datable {
     }
 }
 
-public extension Array where Element: NSManagedObject {
+public extension Array {
     func model<T: Datable>() -> [T] {
         return self.compactMap({T.map(from: $0 as? T.Object)})
     }
