@@ -13,6 +13,7 @@ import CoreData
 @MainActor public class SectionConfigurations<Value: Datable>: ObservableObject {
 //MARK: - Public Properties
     @Published public var sections = [[Value]]()
+    @Published public var isEmpty = false
 //MARK: - Private Properties
     private let predicate: NSPredicate?
     private let sortDescriptors: [NSSortDescriptor]?
@@ -49,6 +50,7 @@ public extension SectionConfigurations {
                     }
                 }
             }.sink { [weak self] value in
+                self?.isEmpty = value.isEmpty
                 self?.sections = value
             }
     }

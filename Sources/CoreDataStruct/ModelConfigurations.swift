@@ -13,6 +13,7 @@ import CoreData
 @MainActor public class ModelConfigurations<Value: Datable>: ObservableObject {
 //MARK: - Public Properties
     @Published public var models = [Value]()
+    @Published public var isEmpty = false
 //MARK: - Private Properties
     private let predicate: NSPredicate?
     private let sortDescriptors: [NSSortDescriptor]?
@@ -35,6 +36,7 @@ public extension ModelConfigurations {
             .publisher()
             .receive(on: RunLoop.main)
             .sink { [weak self] value in
+                self?.isEmpty = value.isEmpty
                 self?.models = value
             }
     }
