@@ -56,8 +56,8 @@ private extension FecthConfigurations {
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
             .publisher()
             .receive(on: RunLoop.main)
-            .map { [weak self] datable in
-                guard let strongSelf = self, let sectionsRules = strongSelf.sectionsRules else {
+            .map { datable in
+                guard let sectionsRules = self.sectionsRules else {
                     fatalError("Something went wrong")
                 }
                 return datable.reduce(into: [[Value]]()) { partialResult, element in
