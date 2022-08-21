@@ -46,6 +46,9 @@ import CoreData
             .assign(to: &$isPaused)
         togglePause()
     }
+    deinit {
+        print("Deinited")
+    }
 }
 
 //MARK: - Private Functions
