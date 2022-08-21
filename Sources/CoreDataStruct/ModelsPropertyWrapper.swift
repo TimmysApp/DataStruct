@@ -26,7 +26,7 @@ import Combine
 
 @available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct SectionedModels<Value: Datable>: DynamicProperty {
-    @State public var sectionResults = SectionedFecthResults<Value>()
+    @State public var sectionResults: SectionedFecthResults<Value>
     private let predicate: NSPredicate?
     private let sortDescriptors: [NSSortDescriptor]?
     private let sectionsRules: (([Value], Value) -> Bool)?
