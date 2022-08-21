@@ -42,9 +42,9 @@ import CoreData
         self.sortDescriptors = sortDescriptors
         self.sectionsRules = sectionsRules
         self.sectionResults = SectionedFecthResults(sections: value)
-//        self.sectionResults?.isPaused
-//            .assign(to: &$isPaused)
-        resumeSectioned()
+        self.sectionResults?.isPaused
+            .assign(to: &$isPaused)
+        togglePause()
     }
 }
 
