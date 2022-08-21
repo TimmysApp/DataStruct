@@ -24,7 +24,7 @@ internal final class FecthConfigurations<Value: Datable>: ObservableObject {
     private let predicate: NSPredicate?
     private let sortDescriptors: [NSSortDescriptor]?
     private let sectionsRules: (([Value], Value) -> Bool)?
-    private var cancellable: AnyCancellable?
+    private var cancellable = Set<AnyCancellable>()
 //MARK: - Internal Initializer
     internal init(value: [Value], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) {
         self.isSectioned = false
@@ -52,7 +52,7 @@ internal final class FecthConfigurations<Value: Datable>: ObservableObject {
 @available(iOS 14.0, macOS 11.0, *)
 private extension FecthConfigurations {
     func resumeSectioned() {
-        cancellable = Value.modelData
+       Value.modelData
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
             .publisher()
             .receive(on: RunLoop.main)
@@ -69,20 +69,20 @@ private extension FecthConfigurations {
                 }
             }.sink { [weak self] value in
                 self?.sectionResults?.sections = value
-            }
+            }.store(in: &cancellable)
     }
     func resumeModel() {
-        cancellable = Value.modelData
+        Value.modelData
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
             .publisher()
             .receive(on: RunLoop.main)
             .sink { [weak self] value in
                 self?.modelResults?.models = value
-            }
+            }.store(in: &cancellable)
     }
     func togglePause() {
         guard isPaused else {
-            guard cancellable == nil else {return}
+            guard cancellable.isEmpty else {return}
             if isSectioned {
                 resumeSectioned()
             }else {
@@ -90,6 +90,8 @@ private extension FecthConfigurations {
             }
             return
         }
-        cancellable = nil
+        cancellable.forEach { cancellable in
+            cancellable.cancel()
+        }
     }
 }
