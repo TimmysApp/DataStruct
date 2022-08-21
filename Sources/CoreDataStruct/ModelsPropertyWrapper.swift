@@ -11,13 +11,13 @@ import Combine
 
 @available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct FetchedModels<Value: Datable>: DynamicProperty {
-    @StateObject private var modelData: ModelConfigurations<Value>
+    @StateObject private var modelData: FecthConfigurations<Value>
     public init(defaultValue: [Value] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil) {
-        self._modelData = StateObject(wrappedValue: ModelConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
+        self._modelData = StateObject(wrappedValue: FecthConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
     }
-    public var wrappedValue: StateObject<ModelConfigurations<Value>> {
+    public var wrappedValue: FecthConfigurations<Value> {
         get {
-            _modelData
+            modelData
         }
         nonmutating set {
         }
@@ -26,15 +26,35 @@ import Combine
 
 @available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct SectionedModels<Value: Datable>: DynamicProperty {
-    @StateObject private var modelData: SectionConfigurations<Value>
+    @StateObject private var modelData: FecthConfigurations<Value>
     public init(defaultValue: [[Value]] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, sections: @escaping ([Value], Value) -> Bool) {
-        self._modelData = StateObject(wrappedValue: SectionConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sectionsRules: sections))
+        self._modelData = StateObject(wrappedValue: FecthConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sectionsRules: sections))
     }
-    public var wrappedValue: StateObject<SectionConfigurations<Value>> {
+    public var wrappedValue: SectionedFecthResults<Value> {
         get {
-            _modelData
+            SectionedFecthResults(configurations: modelData)
         }
         nonmutating set {
         }
     }
 }
+
+@available(iOS 14.0, macOS 11.0, *)
+public struct SectionedFecthResults<Value: Datable> {
+    private var configurations: FecthConfigurations<Value>
+    public var sections: [[Value]] {
+        get {
+            configurations.sections
+        }
+    }
+    public func resume() {
+        configurations.resume()
+    }
+    public func cancel() {
+        configurations.cancel()
+    }
+    internal init(configurations: FecthConfigurations<Value>) {
+        self.configurations = configurations
+    }
+}
+
