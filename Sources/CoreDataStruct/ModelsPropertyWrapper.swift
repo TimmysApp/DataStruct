@@ -28,11 +28,12 @@ import Combine
 @propertyWrapper public struct SectionedModels<Value: Datable>: DynamicProperty {
     @StateObject private var modelData: FecthConfigurations<Value>
     public init(defaultValue: [[Value]] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, sections: @escaping ([Value], Value) -> Bool) {
-        self._modelData = StateObject(wrappedValue: FecthConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sectionsRules: sections))
+        let configs =  FecthConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sectionsRules: sections)
+        self._modelData = StateObject(wrappedValue: configs)
     }
     public var wrappedValue: SectionedFecthResults<Value> {
         get {
-            SectionedFecthResults(configurations: modelData)
+            modelData.sections
         }
         nonmutating set {
         }
@@ -41,25 +42,12 @@ import Combine
 
 @available(iOS 14.0, macOS 11.0, *)
 public struct SectionedFecthResults<Value: Datable> {
-    private var configurations: FecthConfigurations<Value>
-    public var isEmpty: Bool {
-        get {
-            configurations.isEmpty
-        }
-    }
-    public var sections: [[Value]] {
-        get {
-            configurations.sections
-        }
-    }
+    internal var isPaused = PassthroughSubject<Bool, Never>()
+    public var sections = [[Value]]()
     public func resume() {
-        configurations.resume()
+        isPaused.send(true)
     }
     public func cancel() {
-        configurations.cancel()
-    }
-    internal init(configurations: FecthConfigurations<Value>) {
-        self.configurations = configurations
+        isPaused.send(false)
     }
 }
-

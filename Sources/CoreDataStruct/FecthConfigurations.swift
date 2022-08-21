@@ -13,9 +13,9 @@ import CoreData
 public class FecthConfigurations<Value: Datable>: ObservableObject {
 //MARK: - Public Properties
     @Published public var models = [Value]()
-    @Published public var sections = [[Value]]()
-    @Published public var isEmpty = false
+    @Published public var sections = SectionedFecthResults<Value>()
 //MARK: - Private Properties
+    @Published private var isPaused = false
     private let isSectioned: Bool
     private let predicate: NSPredicate?
     private let sortDescriptors: [NSSortDescriptor]?
@@ -35,7 +35,9 @@ public class FecthConfigurations<Value: Datable>: ObservableObject {
         self.predicate = predicate
         self.sortDescriptors = sortDescriptors
         self.sectionsRules = sectionsRules
-        self.sections = value
+        self.sections.sections = value
+        self.sections.isPaused
+            .assign(to: &$isPaused)
         resume()
     }
 }
@@ -76,8 +78,7 @@ private extension FecthConfigurations {
                     }
                 }
             }.sink { [weak self] value in
-                self?.isEmpty = value.isEmpty
-                self?.sections = value
+                self?.sections.sections = value
             }
     }
     func resumeModel() {
@@ -86,7 +87,6 @@ private extension FecthConfigurations {
             .publisher()
             .receive(on: RunLoop.main)
             .sink { [weak self] value in
-                self?.isEmpty = value.isEmpty
                 self?.models = value
             }
     }
