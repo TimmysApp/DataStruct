@@ -15,9 +15,9 @@ import Combine
     public init(defaultValue: [Value] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil) {
         self._modelData = StateObject(wrappedValue: FecthConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
     }
-    public var wrappedValue: FecthConfigurations<Value> {
+    public var wrappedValue: ModelFecthResults<Value> {
         get {
-            modelData
+            modelData.modelResults!
         }
         nonmutating set {
         }
@@ -33,21 +33,9 @@ import Combine
     }
     public var wrappedValue: SectionedFecthResults<Value> {
         get {
-            modelData.sections
+            modelData.sectionResults!
         }
         nonmutating set {
         }
-    }
-}
-
-@available(iOS 14.0, macOS 11.0, *)
-public struct SectionedFecthResults<Value: Datable> {
-    internal var isPaused = PassthroughSubject<Bool, Never>()
-    public var sections = [[Value]]()
-    public func resume() {
-        isPaused.send(true)
-    }
-    public func cancel() {
-        isPaused.send(false)
     }
 }

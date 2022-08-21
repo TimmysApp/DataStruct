@@ -10,12 +10,16 @@ import Combine
 import CoreData
 
 @available(iOS 14.0, macOS 11.0, *)
-public class FecthConfigurations<Value: Datable>: ObservableObject {
-//MARK: - Public Properties
-    @Published public var models = [Value]()
-    @Published public var sections = SectionedFecthResults<Value>()
-//MARK: - Private Properties
-    @Published private var isPaused = false
+internal final class FecthConfigurations<Value: Datable>: ObservableObject {
+    //MARK: - Public Properties
+    @Published public var modelResults: ModelFecthResults<Value>?
+    @Published public var sectionResults: SectionedFecthResults<Value>?
+    //MARK: - Private Properties
+    @Published private var isPaused = false {
+        didSet {
+            togglePause()
+        }
+    }
     private let isSectioned: Bool
     private let predicate: NSPredicate?
     private let sortDescriptors: [NSSortDescriptor]?
@@ -27,34 +31,20 @@ public class FecthConfigurations<Value: Datable>: ObservableObject {
         self.predicate = predicate
         self.sortDescriptors = sortDescriptors
         self.sectionsRules = nil
-        self.models = value
-        resume()
+        self.modelResults = ModelFecthResults(models: value)
+        self.modelResults?.isPaused
+            .assign(to: &$isPaused)
+        togglePause()
     }
     internal init(value: [[Value]], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], sectionsRules: @escaping ([Value], Value) -> Bool) {
         self.isSectioned = true
         self.predicate = predicate
         self.sortDescriptors = sortDescriptors
         self.sectionsRules = sectionsRules
-        self.sections.sections = value
-        self.sections.isPaused
+        self.sectionResults = SectionedFecthResults(sections: value)
+        self.sectionResults?.isPaused
             .assign(to: &$isPaused)
-        resume()
-    }
-}
-
-//MARK: - Public Functions
-@available(iOS 14.0, macOS 11.0, *)
-internal extension FecthConfigurations {
-    func resume() {
-        guard cancellable == nil else {return}
-        if isSectioned {
-            resumeSectioned()
-        }else {
-            resumeModel()
-        }
-    }
-    func cancel() {
-        cancellable = nil
+        togglePause()
     }
 }
 
@@ -78,7 +68,7 @@ private extension FecthConfigurations {
                     }
                 }
             }.sink { [weak self] value in
-                self?.sections.sections = value
+                self?.sectionResults?.sections = value
             }
     }
     func resumeModel() {
@@ -87,7 +77,19 @@ private extension FecthConfigurations {
             .publisher()
             .receive(on: RunLoop.main)
             .sink { [weak self] value in
-                self?.models = value
+                self?.modelResults?.models = value
             }
+    }
+    func togglePause() {
+        guard isPaused else {
+            guard cancellable == nil else {return}
+            if isSectioned {
+                resumeSectioned()
+            }else {
+                resumeModel()
+            }
+            return
+        }
+        cancellable = nil
     }
 }
