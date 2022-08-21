@@ -42,6 +42,11 @@ import Combine
 @available(iOS 14.0, macOS 11.0, *)
 public struct SectionedFecthResults<Value: Datable> {
     private var configurations: FecthConfigurations<Value>
+    public var isEmpty: Bool {
+        get {
+            configurations.isEmpty
+        }
+    }
     public var sections: [[Value]] {
         get {
             configurations.sections
