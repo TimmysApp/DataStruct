@@ -11,9 +11,9 @@ import Combine
 
 @available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct FetchedModels<Value: Datable>: DynamicProperty {
-    @StateObject private var modelData: FecthConfigurations<Value>
+    @StateObject private var modelData = FecthConfigurations<Value>()
     public init(defaultValue: [Value] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil) {
-        self._modelData = StateObject(wrappedValue: FecthConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
+        self.modelData.initialise(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors)
     }
     public var wrappedValue: ModelFecthResults<Value> {
         get {
@@ -26,10 +26,9 @@ import Combine
 
 @available(iOS 14.0, macOS 11.0, *)
 @propertyWrapper public struct SectionedModels<Value: Datable>: DynamicProperty {
-    @StateObject private var modelData: FecthConfigurations<Value>
+    @StateObject private var modelData = FecthConfigurations<Value>()
     public init(defaultValue: [[Value]] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, sections: @escaping ([Value], Value) -> Bool) {
-        let configs =  FecthConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sectionsRules: sections)
-        self._modelData = StateObject(wrappedValue: configs)
+        modelData.initialise(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors, sectionsRules: sections)
     }
     public var wrappedValue: SectionedFecthResults<Value> {
         get {

@@ -20,23 +20,18 @@ internal final class FecthConfigurations<Value: Datable>: ObservableObject {
             togglePause()
         }
     }
-    private let isSectioned: Bool
-    private let predicate: NSPredicate?
-    private let sortDescriptors: [NSSortDescriptor]?
-    private let sectionsRules: (([Value], Value) -> Bool)?
+    private var isSectioned: Bool!
+    private var predicate: NSPredicate?
+    private var sortDescriptors: [NSSortDescriptor]?
+    private var sectionsRules: (([Value], Value) -> Bool)?
     private var cancellable: AnyCancellable?
+    private var initialised = false
 //MARK: - Internal Initializer
-    internal init(value: [Value], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) {
-        self.isSectioned = false
-        self.predicate = predicate
-        self.sortDescriptors = sortDescriptors
-        self.sectionsRules = nil
-        self.modelResults = ModelFecthResults(models: value)
-        self.modelResults?.isPaused
-            .assign(to: &$isPaused)
-        togglePause()
+    init() {
     }
-    internal init(value: [[Value]], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], sectionsRules: @escaping ([Value], Value) -> Bool) {
+    func initialise(value: [[Value]], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], sectionsRules: @escaping ([Value], Value) -> Bool) {
+        guard !initialised else {return}
+        initialised = true
         self.isSectioned = true
         self.predicate = predicate
         self.sortDescriptors = sortDescriptors
@@ -46,13 +41,25 @@ internal final class FecthConfigurations<Value: Datable>: ObservableObject {
             .assign(to: &$isPaused)
         togglePause()
     }
+    func initialise(value: [Value], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) {
+        guard !initialised else {return}
+        initialised = true
+        self.isSectioned = false
+        self.predicate = predicate
+        self.sortDescriptors = sortDescriptors
+        self.sectionsRules = nil
+        self.modelResults = ModelFecthResults(models: value)
+        self.modelResults?.isPaused
+            .assign(to: &$isPaused)
+        togglePause()
+    }
 }
 
 //MARK: - Private Functions
 @available(iOS 14.0, macOS 11.0, *)
 private extension FecthConfigurations {
     func resumeSectioned() {
-       cancellable = Value.modelData
+        cancellable = Value.modelData
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
             .publisher()
             .receive(on: RunLoop.main)
@@ -81,6 +88,7 @@ private extension FecthConfigurations {
             }
     }
     func togglePause() {
+        guard initialised else {return}
         if isPaused {
             cancellable = nil
         }else {
