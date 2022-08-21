@@ -10,7 +10,7 @@ import Combine
 import CoreData
 
 @available(iOS 14.0, macOS 11.0, *)
-internal final class FecthConfigurations<Value: Datable>: ObservableObject {
+@MainActor internal final class FecthConfigurations<Value: Datable>: ObservableObject {
     //MARK: - Public Properties
     @Published public var modelResults: ModelFecthResults<Value>?
     @Published public var sectionResults: SectionedFecthResults<Value>?
@@ -55,9 +55,8 @@ private extension FecthConfigurations {
        cancellable = Value.modelData
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
             .publisher()
-            .receive(on: RunLoop.main)
-            .map { datable in
-                guard let sectionsRules = self.sectionsRules else {
+            .map { [weak self] datable in
+                guard let strongSelf = self, let sectionsRules = strongSelf.sectionsRules else {
                     fatalError("Something went wrong")
                 }
                 return datable.reduce(into: [[Value]]()) { partialResult, element in
@@ -67,16 +66,14 @@ private extension FecthConfigurations {
                         partialResult.append([element])
                     }
                 }
-            }.sink { value in
-                self.sectionResults?.sections = value
+            }.sink { [weak self] value in
+                self?.sectionResults?.sections = value
             }
-        print(cancellable)
     }
     func resumeModel() {
         cancellable = Value.modelData
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
             .publisher()
-            .receive(on: RunLoop.main)
             .sink { [weak self] value in
                 self?.modelResults?.models = value
             }
