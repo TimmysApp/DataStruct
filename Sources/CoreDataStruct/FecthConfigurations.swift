@@ -67,8 +67,8 @@ private extension FecthConfigurations {
                         partialResult.append([element])
                     }
                 }
-            }.sink { [weak self] value in
-                self?.sectionResults?.sections = value
+            }.sink { value in
+                self.sectionResults?.sections = value
             }
         print(cancellable)
     }
@@ -91,7 +91,6 @@ private extension FecthConfigurations {
             }else {
                 resumeModel()
             }
-            return
         }
     }
 }
