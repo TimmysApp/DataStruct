@@ -11,6 +11,7 @@ import Combine
 @available(iOS 14.0, macOS 11.0, *)
 public struct SectionedFecthResults<Value: Datable> {
 //MARK: - Internal Properties
+    private var cancellable: AnyCancellable?
     internal var isPaused = PassthroughSubject<Bool, Never>()
 //MARK: - Public Properties
     public var sections = [[Value]]()

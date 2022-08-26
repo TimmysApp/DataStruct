@@ -13,7 +13,7 @@ import CoreData
 @MainActor internal final class FecthConfigurations<Value: Datable>: ObservableObject {
     //MARK: - Public Properties
     @Published public var modelResults: ModelFecthResults<Value>?
-    @Published public var sectionResults: SectionedFecthResults<Value>?
+    @Published public var sections: [[Value]]
     //MARK: - Private Properties
     @Published private var isPaused = false {
         didSet {
@@ -31,6 +31,7 @@ import CoreData
         self.predicate = predicate
         self.sortDescriptors = sortDescriptors
         self.sectionsRules = nil
+        self.sections = []
         self.modelResults = ModelFecthResults(models: value)
         self.modelResults?.isPaused
             .assign(to: &$isPaused)
@@ -41,9 +42,7 @@ import CoreData
         self.predicate = predicate
         self.sortDescriptors = sortDescriptors
         self.sectionsRules = sectionsRules
-        self.sectionResults = SectionedFecthResults(sections: value)
-        self.sectionResults?.isPaused
-            .assign(to: &$isPaused)
+        self.sections = value
         togglePause()
     }
 }
@@ -67,7 +66,7 @@ private extension FecthConfigurations {
                     }
                 }
             }.sink { [weak self] value in
-                self?.sectionResults?.sections = value
+                self?.sections = value
             }
     }
     func resumeModel() {
