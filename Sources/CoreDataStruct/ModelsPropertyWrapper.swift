@@ -15,9 +15,9 @@ import Combine
     public init(defaultValue: [Value] = [], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil) {
         self._modelData = StateObject(wrappedValue: FecthConfigurations(value: defaultValue, predicate: predicate, sortDescriptors: sortDescriptors))
     }
-    public var wrappedValue: ModelFecthResults<Value> {
+    public var wrappedValue: [Value] {
         get {
-            modelData.modelResults!
+            modelData.data
         }
         nonmutating set {
         }

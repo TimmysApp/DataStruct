@@ -12,8 +12,8 @@ import CoreData
 @available(iOS 14.0, macOS 11.0, *)
 @MainActor internal final class FecthConfigurations<Value: Datable>: ObservableObject {
     //MARK: - Public Properties
-    @Published public var modelResults: ModelFecthResults<Value>?
     @Published public var sections: [[Value]]
+    @Published public var data: [Value]
     //MARK: - Private Properties
     @Published private var isPaused = false {
         didSet {
@@ -32,9 +32,7 @@ import CoreData
         self.sortDescriptors = sortDescriptors
         self.sectionsRules = nil
         self.sections = []
-        self.modelResults = ModelFecthResults(models: value)
-        self.modelResults?.isPaused
-            .assign(to: &$isPaused)
+        self.data = value
         togglePause()
     }
     internal init(value: [[Value]], predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], sectionsRules: @escaping ([Value], Value) -> Bool) {
@@ -43,6 +41,7 @@ import CoreData
         self.sortDescriptors = sortDescriptors
         self.sectionsRules = sectionsRules
         self.sections = value
+        self.data = []
         togglePause()
     }
 }
@@ -74,7 +73,7 @@ private extension FecthConfigurations {
             .with(predicate: predicate, sortDescriptors: sortDescriptors)
             .publisher()
             .sink { [weak self] value in
-                self?.modelResults?.models = value
+                self?.data = value
             }
     }
     func togglePause() {
