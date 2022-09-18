@@ -34,13 +34,13 @@ public extension Datable {
             if property.key == "oid" {
                 let newValue = value as? UUID ?? UUID()
                 object.setValue(newValue, forKey: property.key)
-            }else if let datableValue = value as? Datable {
+            }else if let datableValue = value as? (any Datable) {
                 if datableValue.oid == nil || oid == nil {
                     object.setValue(datableValue.object, forKey: key)
                 }else {
                     object.setValue(datableValue.updatedObject, forKey: key)
                 }
-            }else if let datableValue = value as? Array<Datable> {
+            }else if let datableValue = value as? Array<any Datable> {
                 let set = NSSet(array: datableValue.map { subValue in
                     if subValue.oid == nil || oid == nil{
                        return subValue.object
