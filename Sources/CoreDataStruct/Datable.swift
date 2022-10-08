@@ -28,12 +28,12 @@ public extension Datable {
         }
     }
 //MARK: - Mapping
-    var id: UUID? {
+    var oid: UUID? {
         get {
-            return oid
+            return id
         }
         set {
-            oid = newValue
+            id = newValue
         }
     }
     static func latestObject(for id: UUID?) -> Object? {
