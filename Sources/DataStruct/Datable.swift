@@ -13,6 +13,7 @@ public protocol Datable: Identifiable, Iterable {
     var oid: UUID? {get set}
     var id: UUID? {get set}
     static var dataKeys: [String: String] {get}
+    static var nonDataKeys: [String] {get}
     static var empty: Self {get}
 //MARK: - Mapping
     static func map(from object: Object?) -> Self?
@@ -22,18 +23,19 @@ public protocol Datable: Identifiable, Iterable {
 }
 
 public extension Datable {
-    var dataKeys: [String: String] {
-        get {
-            return [:]
-        }
+    static var nonDataKeys: [String] {
+        return []
+    }
+    static var dataKeys: [String: String] {
+        return [:]
     }
 //MARK: - Mapping
-    var id: UUID? {
+    var oid: UUID? {
         get {
-            return oid
+            return id
         }
         set {
-            oid = newValue
+            id = newValue
         }
     }
     static func latestObject(for id: UUID?) -> Object? {
@@ -125,7 +127,7 @@ public extension Datable {
     }
 }
 
-public extension Array where Element: NSManagedObject {
+public extension Array {
     func model<T: Datable>() -> [T] {
         return self.compactMap({T.map(from: $0 as? T.Object)})
     }
