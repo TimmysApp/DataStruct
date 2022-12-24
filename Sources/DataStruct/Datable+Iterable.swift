@@ -25,35 +25,25 @@ public extension Datable {
 //        return newObject
 //    }
     func getObject(from object: Object, isUpdating: Bool) -> Object {
-        guard let properties = try? allProperties() else {
+        guard let properties = allProperties() else {
             return object
         }
         properties.forEach { property in
+            guard !Self.nonDataKeys.contains(property.key) else {return}
             let value = property.value
-            let key = dataKeys[property.key] ?? property.key
-            if property.key == "oid" {
+            let key = Self.dataKeys[property.key] ?? property.key
+            if property.key == "id" {
                 let newValue = value as? UUID ?? UUID()
-                object.setValue(newValue, forKey: property.key)
+                object.setValue(newValue, forKey: "oid")
             }else if let datableValue = value as? (any Datable) {
-                if datableValue.oid == nil || oid == nil {
-                    object.setValue(datableValue.object, forKey: key)
-                }else {
-                    object.setValue(datableValue.updatedObject, forKey: key)
-                }
+                object.setValue(isUpdating ? datableValue.updatedObject: datableValue.object, forKey: key)
             }else if let datableValue = value as? Array<any Datable> {
-                let set = NSSet(array: datableValue.map { subValue in
-                    if subValue.oid == nil || oid == nil{
-                       return subValue.object
-                    }
-                    return subValue.updatedObject
-                })
+                let set = NSSet(array: datableValue.map({isUpdating ? $0.updatedObject: object}))
                 object.setValue(set, forKey: key)
+            }else if let datableValue = value as? DatableValue {
+                object.setValue(datableValue.dataValue, forKey: key)
             }else {
-                if let intValue = value as? Int {
-                    object.setValue(intValue, forKey: key)
-                }else {
-                    object.setValue(value, forKey: key)
-                }
+                object.setValue(value, forKey: key)
             }
         }
         return object
