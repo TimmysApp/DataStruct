@@ -127,7 +127,13 @@ public extension Datable {
     }
 }
 
-public extension Array {
+public extension Array where Element: NSManagedObject {
+    func model<T: Datable>() -> [T] {
+        return self.compactMap({T.map(from: $0 as? T.Object)})
+    }
+}
+
+public extension NSSet {
     func model<T: Datable>() -> [T] {
         return self.compactMap({T.map(from: $0 as? T.Object)})
     }
