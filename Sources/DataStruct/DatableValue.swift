@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol DatableValue {
+public protocol DatableValue {
     var dataValue: Any {get}
 }
