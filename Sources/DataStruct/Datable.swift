@@ -12,6 +12,7 @@ public protocol Datable: Identifiable, Iterable {
     associatedtype Object: NSManagedObject
     var oid: UUID? {get set}
     var id: UUID? {get set}
+    var isSaved: Bool {get}
     static var empty: Self {get}
 //MARK: - Mapping
     static func map(from object: Object?) -> Self?
@@ -21,6 +22,9 @@ public protocol Datable: Identifiable, Iterable {
 }
 
 public extension Datable {
+    var isSaved: Bool {
+        return Self.latestObject(for: oid) != nil
+    }
 //MARK: - Mapping
     var oid: UUID? {
         get {
