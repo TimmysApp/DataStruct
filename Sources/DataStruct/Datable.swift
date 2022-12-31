@@ -12,8 +12,6 @@ public protocol Datable: Identifiable, Iterable {
     associatedtype Object: NSManagedObject
     var oid: UUID? {get set}
     var id: UUID? {get set}
-    static var dataKeys: [String: String] {get}
-    static var nonDataKeys: [String] {get}
     static var empty: Self {get}
 //MARK: - Mapping
     static func map(from object: Object?) -> Self?
@@ -23,12 +21,6 @@ public protocol Datable: Identifiable, Iterable {
 }
 
 public extension Datable {
-    static var nonDataKeys: [String] {
-        return []
-    }
-    static var dataKeys: [String: String] {
-        return [:]
-    }
 //MARK: - Mapping
     var oid: UUID? {
         get {
