@@ -35,15 +35,21 @@ public extension Datable {
             if property.key == "id" {
                 let newValue = value as? UUID ?? UUID()
                 object.setValue(newValue, forKey: "oid")
-            }else if let datableValue = value as? (any Datable) {
-                object.setValue(isUpdating ? datableValue.updatedObject: datableValue.object, forKey: key)
-            }else if let datableValue = value as? Array<any Datable> {
-                let set = NSSet(array: datableValue.map({isUpdating ? $0.updatedObject: object}))
-                object.setValue(set, forKey: key)
-            }else if let datableValue = value as? DatableValue {
-                object.setValue(datableValue.dataValue, forKey: key)
             }else {
-                object.setValue(value, forKey: key)
+                guard case Optional<Any>.some = property.value else {
+                    object.setNilValueForKey(key)
+                    return
+                }
+                if let datableValue = value as? (any Datable) {
+                    object.setValue(isUpdating ? datableValue.updatedObject: datableValue.object, forKey: key)
+                }else if let datableValue = value as? Array<any Datable> {
+                    let set = NSSet(array: datableValue.map({isUpdating ? $0.updatedObject: object}))
+                    object.setValue(set, forKey: key)
+                }else if let datableValue = value as? DatableValue {
+                    object.setValue(datableValue.dataValue, forKey: key)
+                }else {
+                    object.setValue(value, forKey: key)
+                }
             }
         }
         return object
