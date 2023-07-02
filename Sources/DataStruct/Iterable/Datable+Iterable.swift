@@ -27,7 +27,7 @@ public extension Datable {
                 if let datableValue = value as? (any Datable) {
                     object.setValue(isUpdating ? datableValue.savedObject: datableValue.object, forKey: key)
                 }else if let datableValue = value as? Array<any Datable> {
-                    let set = NSSet(array: datableValue.map({($0.id != nil ? $0.savedObject: object) as Any}))
+                    let set = NSSet(array: datableValue.map({($0.id != nil ? $0.savedObject: $0.object) as Any}))
                     object.setValue(set, forKey: key)
                 }else if let datableValue = value as? DatableValue {
                     object.setValue(datableValue.dataValue, forKey: key)
