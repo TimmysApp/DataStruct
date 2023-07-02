@@ -8,23 +8,7 @@ import Foundation
 import CoreData
 
 public extension Datable {
-//    static func map(from object: Object?) -> Self? {
-//        var newObject = empty
-//        guard let properties = try? newObject.allProperties() else {
-//            return nil
-//        }
-//        properties.forEach { property in
-//            let key = dataKeys[property.key] ?? property.key
-//            let value = object?.value(forKey: key)
-//            if let set = value as? NSSet,  let valueType = newObject[property.key] as? [Datable] {
-//                let type = type(of: valueType).Element.s
-//                let setValue = (set.allObjects as? Array<NSManagedObject>)?.compactMap({type.map(from: $0)})
-//                newObject[property.key] = setValue
-//            }
-//        }
-//        return newObject
-//    }
-    func getObject(from object: Object, isUpdating: Bool) -> Object {
+    func map(object: Object, isUpdating: Bool) -> Object {
         guard let properties = allProperties() else {
             return object
         }
@@ -41,13 +25,16 @@ public extension Datable {
                     return
                 }
                 if let datableValue = value as? (any Datable) {
-                    object.setValue(isUpdating ? datableValue.updatedObject: datableValue.object, forKey: key)
+                    object.setValue(isUpdating ? datableValue.savedObject: datableValue.object, forKey: key)
                 }else if let datableValue = value as? Array<any Datable> {
-                    let set = NSSet(array: datableValue.map({isUpdating ? $0.updatedObject: object}))
+                    let set = NSSet(array: datableValue.map({$0.id == nil ? $0.savedObject: object as Any}))
                     object.setValue(set, forKey: key)
                 }else if let datableValue = value as? DatableValue {
                     object.setValue(datableValue.dataValue, forKey: key)
-                }else {
+                }else if let datableValues = value as? [DatableValue] {
+                    object.setValue(datableValues.map(\.dataValue), forKey: key)
+                }
+                else {
                     object.setValue(value, forKey: key)
                 }
             }
