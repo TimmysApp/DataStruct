@@ -84,7 +84,7 @@ public extension Datable {
     }
 //MARK: - Fetching
     static func fetch(with predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], objectContext: NSManagedObjectContext? = nil) throws -> [Self] {
-        return try fetching(with: predicate, sortDescriptors: sortDescriptors).model()
+        return try fetching(with: predicate, sortDescriptors: sortDescriptors, objectContext: objectContext).model()
     }
     static func fetching(with predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], objectContext: NSManagedObjectContext? = nil) throws -> [Self.Object] {
         guard let viewContext = objectContext ?? DataConfigurations.shared.managedObjectContext else {
