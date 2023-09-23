@@ -39,11 +39,11 @@ public extension Datable {
         }
     }
 //MARK: - Entity
-    var savedObject: Object? {
+    func savedObject(for objectContext: NSManagedObjectContext?) -> Object? {
         guard let oid else {
             return nil
         }
-        return try? Self.fetching(with: NSPredicate(format: "oid = %@", "\(oid)")).first
+        return try? Self.fetching(with: NSPredicate(format: "oid = %@", "\(oid)"), objectContext: objectContext).first
     }
     func object(for objectContext: NSManagedObjectContext?) -> Object {
         guard let objectContext else {
@@ -58,7 +58,7 @@ public extension Datable {
         }
         viewContext.perform {
             do {
-                if let savedObject {
+                if let savedObject = savedObject(for: objectContext) {
                     _ = map(object: savedObject, isUpdating: true)
                     try viewContext.save()
                 }else {
@@ -75,7 +75,7 @@ public extension Datable {
             fatalError("You should set the ViewContext of the Configurations using Configurations.setObjectContext")
         }
         do {
-            guard let savedObject else {return}
+            guard let savedObject = savedObject(for: objectContext) else {return}
             viewContext.delete(savedObject)
             try viewContext.save()
         }catch {
