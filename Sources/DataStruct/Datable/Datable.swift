@@ -17,7 +17,7 @@ public protocol Datable: Identifiable, Iterable {
     static var nonDataKeys: [String] {get}
 //MARK: - Mapping
     static func map(from object: Object?) -> Self?
-    func map(object: Object, isUpdating: Bool) -> Object
+    func map(object: Object, isUpdating: Bool, objectContext: NSManagedObjectContext?) -> Object
 //MARK: - Fetching
     static var modelData: ModelData<Self> {get}
 }
@@ -49,7 +49,7 @@ public extension Datable {
         guard let objectContext else {
             fatalError("You should set the ViewContext of the Configurations using Configurations.setObjectContext")
         }
-        return map(object: Object(context: objectContext), isUpdating: false)
+        return map(object: Object(context: objectContext), isUpdating: false, objectContext: objectContext)
     }
 //MARK: - Writing
     func save(_ objectContext: NSManagedObjectContext? = nil) {
@@ -59,7 +59,7 @@ public extension Datable {
         viewContext.perform {
             do {
                 if let savedObject = savedObject(for: objectContext) {
-                    _ = map(object: savedObject, isUpdating: true)
+                    _ = map(object: savedObject, isUpdating: true, objectContext: objectContext)
                     try viewContext.save()
                 }else {
                     _ = object(for: objectContext)

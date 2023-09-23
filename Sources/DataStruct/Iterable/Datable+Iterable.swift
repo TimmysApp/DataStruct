@@ -8,7 +8,7 @@ import Foundation
 import CoreData
 
 public extension Datable {
-    func map(object: Object, isUpdating: Bool) -> Object {
+    func map(object: Object, isUpdating: Bool, objectContext: NSManagedObjectContext?) -> Object {
         guard let properties = allProperties() else {
             return object
         }
@@ -24,9 +24,15 @@ public extension Datable {
                     return
                 }
                 if let datableValue = value as? (any Datable) {
-                    object.setValue(isUpdating ? datableValue.savedObject: datableValue.object, forKey: key)
+                    object.setValue(isUpdating ? datableValue.savedObject: datableValue.object(for: objectContext), forKey: key)
                 }else if let datableValue = value as? Array<any Datable> {
-                    let set = NSSet(array: datableValue.map({($0.id != nil ? $0.savedObject: $0.object) as Any}))
+                    let array = datableValue.map { item in
+                        if let saved = item.savedObject(for: objectContext) {
+                            return saved
+                        }
+                        return item.object(for: objectContext)
+                    }
+                    let set = NSSet(array: array)
                     object.setValue(set, forKey: key)
                 }else if let datableValue = value as? DatableValue {
                     object.setValue(datableValue.dataValue, forKey: key)
