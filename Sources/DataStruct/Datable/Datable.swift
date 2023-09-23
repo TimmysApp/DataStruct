@@ -10,8 +10,9 @@ import CoreData
 
 public protocol Datable: Identifiable, Iterable {
     associatedtype Object: NSManagedObject
-    var oid: ID? {get set}
-    var id: ID? {get set}
+    associatedtype ObjectID: Hashable
+    var oid: ObjectID? {get set}
+    var id: ObjectID? {get set}
     static var dataKeys: [String: String] {get}
     static var nonDataKeys: [String] {get}
 //MARK: - Mapping
@@ -29,7 +30,7 @@ public extension Datable {
         return [:]
     }
 //MARK: - Mapping
-    var oid: ID? {
+    var oid: ObjectID? {
         get {
             return id
         }
