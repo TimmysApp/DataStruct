@@ -17,8 +17,7 @@ public extension Datable {
             let value = property.value
             let key = Self.dataKeys[property.key] ?? property.key
             if property.key == "id" {
-                let newValue = value as? UUID ?? UUID()
-                object.setValue(newValue, forKey: "oid")
+                object.setValue(value, forKey: "oid")
             }else {
                 guard case Optional<Any>.some = property.value else {
                     object.setNilValueForKey(key)

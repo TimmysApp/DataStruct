@@ -45,24 +45,24 @@ public extension Datable {
         }
         return try? Self.fetching(with: NSPredicate(format: "oid = %@", "\(oid)")).first
     }
-    var object: Object {
-        guard let viewContext = DataConfigurations.shared.managedObjectContext else {
+    func object(for objectContext: NSManagedObjectContext?) -> Object {
+        guard let objectContext else {
             fatalError("You should set the ViewContext of the Configurations using Configurations.setObjectContext")
         }
-        return map(object: Object(context: viewContext), isUpdating: false)
+        return map(object: Object(context: objectContext), isUpdating: false)
     }
 //MARK: - Writing
-    func save(_ forceCreate: Bool = false) {
-        guard let viewContext = DataConfigurations.shared.managedObjectContext else {
+    func save(_ objectContext: NSManagedObjectContext? = nil) {
+        guard let viewContext = objectContext ?? DataConfigurations.shared.managedObjectContext else {
             fatalError("You should set the ViewContext of the Configurations using Configurations.setObjectContext")
         }
         viewContext.perform {
             do {
-                if let savedObject, !forceCreate {
+                if let savedObject {
                     _ = map(object: savedObject, isUpdating: true)
                     try viewContext.save()
                 }else {
-                    _ = object
+                    _ = object(for: objectContext)
                     try viewContext.save()
                 }
             }catch {
@@ -70,8 +70,8 @@ public extension Datable {
             }
         }
     }
-    func delete() {
-        guard let viewContext = DataConfigurations.shared.managedObjectContext else {
+    func delete(_ objectContext: NSManagedObjectContext? = nil) {
+        guard let viewContext = objectContext ?? DataConfigurations.shared.managedObjectContext else {
             fatalError("You should set the ViewContext of the Configurations using Configurations.setObjectContext")
         }
         do {
@@ -83,11 +83,11 @@ public extension Datable {
         }
     }
 //MARK: - Fetching
-    static func fetch(with predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) throws -> [Self] {
+    static func fetch(with predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], objectContext: NSManagedObjectContext? = nil) throws -> [Self] {
         return try fetching(with: predicate, sortDescriptors: sortDescriptors).model()
     }
-    static func fetching(with predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = []) throws -> [Self.Object] {
-        guard let viewContext = DataConfigurations.shared.managedObjectContext else {
+    static func fetching(with predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = [], objectContext: NSManagedObjectContext? = nil) throws -> [Self.Object] {
+        guard let viewContext = objectContext ?? DataConfigurations.shared.managedObjectContext else {
             fatalError("You should set the ViewContext of the Configurations using Configurations.setObjectContext")
         }
         guard let fetchRequest = Object.fetchRequest() as? NSFetchRequest<Object> else {
