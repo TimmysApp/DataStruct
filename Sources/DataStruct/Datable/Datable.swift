@@ -74,12 +74,14 @@ public extension Datable {
         guard let viewContext = objectContext ?? DataConfigurations.shared.managedObjectContext else {
             fatalError("You should set the ViewContext of the Configurations using Configurations.setObjectContext")
         }
-        do {
-            guard let savedObject = savedObject(for: objectContext) else {return}
-            viewContext.delete(savedObject)
-            try viewContext.save()
-        }catch {
-            print(error)
+        viewContext.perform {
+            do {
+                guard let savedObject = savedObject(for: objectContext) else {return}
+                viewContext.delete(savedObject)
+                try viewContext.save()
+            }catch {
+                print(error)
+            }
         }
     }
 //MARK: - Fetching
